@@ -1,0 +1,334 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>AVATAR - Ingrese sus datos</title>
+	<base href="">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="icon" href="https://avatar.utn.ac.cr/avatar_utn/images/avatarico.png" type="image/x-icon" />
+    <link rel='stylesheet' href="https://avatar.utn.ac.cr/avatar_utn/css/avatar.css" type="text/css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/>
+	<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <Script type="text/javascript" language="javascript" src="https://avatar.utn.ac.cr/avatar_utn/js/Compartidas.js"></Script>
+    <script type="text/javascript" language= "javascript" src="https://avatar.utn.ac.cr/avatar_utn/js/zxml.js"></script>
+	<script language="Javascript" type="text/javascript">
+        
+        $(document).ready(function(){
+           $('#modalCambioPass').on('hidden.bs.modal', function () {
+                console.log("En el hide");
+                $('.login-error').html("");
+            });
+           $('#modalActivarCuenta').on('hidden.bs.modal', function () {
+                console.log("En el hide");
+                $('.login-error').html("");
+            });
+        });
+        
+		if (window.self != window.top) {
+		  window.open(".", "_top");
+		}
+
+
+		function Login()
+		{
+			if (!document.getElementById("_S00USR")) return false;
+
+			if (document.getElementById("_S00USR").value == "") { 
+					document.getElementById("_S00USR").focus(); 
+					alert('Debe indicar su identificador de usuario');
+					return; 
+			}
+
+			if (document.getElementById("_S00CLA").value == "") { 
+					alert('Debe indicar su contrase�a');
+					document.getElementById("_S00CLA").focus(); 
+					return; 
+			}
+
+			document.forms['frmLogin'].submit();
+
+		}
+
+		function Reload(){
+			window.location.reload();
+		}
+
+		function Limpiar()
+		{
+			document.getElementById("_S00USR").value = "";
+			document.getElementById("_S00CLA").value = "";
+			document.getElementById("_S00USR").focus();
+		}
+
+		function LimpiarContrasena()
+		{
+			document.getElementById("_S00CLA").value = "";
+		}
+
+		function ManejaTecla(tecla){
+			var tecla = Key(tecla);
+			if (tecla==__KEY_ENTER) Login();
+		}
+        
+        function Enviar(){
+            var strTipo = document.getElementById('TIPO_DOCUMENTO').value;
+            var strDocumento = document.getElementById('DOCUMENTO').value;
+
+            if (strTipo == "")
+            {
+                alert("Debe indicar el tipo de documento de identidad.");
+                document.getElementById('TIPO_DOCUMENTO').focus();
+                return false;
+            }
+
+            if (strDocumento == "")
+            {
+                alert("Debe indicar su n�mero de identificaci�n.");
+                document.getElementById('DOCUMENTO').focus();
+                return false;
+            }
+
+            document.getElementById('mensaje').innerHTML = 'Procesando... Espere por favor...';
+            document.getElementById('btnActivar').disabled = true;
+            $('#mensaje').fadeIn();
+            var oXmlHttp = zXmlHttp.createRequest();
+            oXmlHttp.open("post", "https://avatar.utn.ac.cr/avatar_utn/generales/xmlServicios.jsp?WS=ACTIVAR&M12CAR=" + strDocumento + "&TIPO=" + strTipo, true);
+            oXmlHttp.onreadystatechange = function () {
+                if (oXmlHttp.readyState == 4) {
+                    if (oXmlHttp.status == 200) {
+                        if (!ExisteError(oXmlHttp))
+                        {
+                            // Si no viene XML, es TEXTO => DEBE SER HTML
+                            document.getElementById('mensaje').innerHTML = oXmlHttp.responseText;
+                            strDocumento = document.getElementById('DOCUMENTO').value = "";
+                        }
+                    } else {
+                        alert("Error Fatal: " + oXmlHttp.statusText);
+                    }
+                    document.getElementById('btnActivar').disabled = false;
+                }
+            };
+            oXmlHttp.send(null);
+        }
+        
+        function SolicitarCorreo(){
+            var strTipo = document.getElementById('TIPO_ID').value;
+            var strDocumento = document.getElementById('IDENTIFICACION').value;
+
+            if (strTipo == "")
+            {
+                alert("Debe indicar el tipo de documento de identidad.");
+                document.getElementById('TIPO_ID').focus();
+                return false;
+            }
+
+            if (strDocumento == "")
+            {
+                alert("Debe indicar su n�mero de identificaci�n.");
+                document.getElementById('IDENTIFICACION').focus();
+                return false;
+            }
+
+
+            document.getElementById('mensaje2').innerHTML = 'Procesando... Espere por favor...';
+            document.getElementById('btnSolicitar').disabled = true;
+            $('#mensaje2').fadeIn();
+            var oXmlHttp = zXmlHttp.createRequest();
+            oXmlHttp.open("post", "https://avatar.utn.ac.cr/avatar_utn/generales/xmlServicios.jsp?WS=SOLICITAR&IDENTIFICACION=" + strDocumento + "&TIPO=" + strTipo, true);
+            oXmlHttp.onreadystatechange = function () {
+                if (oXmlHttp.readyState == 4) {
+                    if (oXmlHttp.status == 200) {
+                        if (!ExisteError(oXmlHttp))
+                        {
+                            // Si no viene XML, es TEXTO => DEBE SER HTML
+                            document.getElementById('mensaje2').innerHTML = oXmlHttp.responseText;
+                            document.getElementById('IDENTIFICACION').value = "";
+                        }
+                    } else {
+                        alert("Error Fatal: " + oXmlHttp.statusText);
+                    }
+                    document.getElementById('btnSolicitar').disabled = false;
+                }
+            };
+            oXmlHttp.send(null);
+        }
+
+	</script>
+</head>
+<body onLoad="Limpiar();setTimeout('Reload()',1000000);">
+    <div class="container">
+        <div class="row">
+            <div id="login-container" class="col-lg-7 col-lg-offset-2 col-md-10 col-md-offset-2 col-xs-10 col-xs-offset-1 col-sm-12 no-padding ">
+                <div id="login-header" class="col-lg-12  col-md-12  col-sm-12 col-xs-12 text-center">  
+                    <img  src="https://avatar.utn.ac.cr/avatar_utn/images/avatarsys.png" alt="AVATAR.SYS"/>
+                </div>
+                <div id="login-body" class="col-lg-12  col-md-12  col-sm-12 col-xs-12">
+
+                    <div class="col-lg-12 col-xs-12 text-center company-logo">
+                         <img src="https://avatar.utn.ac.cr/avatar_utn/images/Company.png" alt="Company_logo"/>
+                    </div>
+                    <div class="col-lg-8 col-lg-offset-2 col-md-12 col-sm-12 col-xs-12">  
+                        
+                        <form action="https://avatar.utn.ac.cr/avatar_utn/Security_Check" method=post name="frmLogin">
+                            <input type="hidden" value="login" name="_accion" id="_accion"/>
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-user"></span></span>
+                                    <input type="text" required='' placeholder="Usuario" class="form-control"  id="_S00USR" name="_S00USR"/>
+                                </div>
+                            </div>
+                            <div class="form-group margen-arriba">
+                                <div class="input-group">
+                                    <span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-lock"></span></span>
+                                    <input type="password" placeholder="Contraseña" class="form-control" id="_S00CLA" name="_S00CLA" onKeyUp='ManejaTecla(event)'/>
+                                </div>
+                            </div>
+                            <div class="form-group margen-arriba text-right">
+                                <label class="btn btn-login" onclick="Login();">Ingresar</label>
+                            </div>
+                        </form>
+                        
+                    </div>
+                </div>
+                <div id="login-footer" class="col-lg-12  col-md-12  col-sm-12 col-xs-12">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 text-center">
+                        <a href='https://avatar.utn.ac.cr/avatar_utn/#modalCambioPass' data-toggle="modal" data-target="#modalCambioPass"> 
+                            <span class="glyphicon glyphicon-lock"></span>
+                            <h5 class="">Olvidó Contraseña</h5>
+                        </a>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 text-center">
+                        <a href='https://avatar.utn.ac.cr/avatar_utn/#modalActivarCuenta' data-toggle="modal" data-target="#modalActivarCuenta"> 
+                            <span class="glyphicon glyphicon-user"></span>
+                            <h5 class="">Activar Cuenta</h5>
+                        </a>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 text-center">
+                        <a href='https://avatar.utn.ac.cr/avatar_utn/#' onclick="return false;"> 
+                            <span class="glyphicon glyphicon-question-sign"></span>
+                            <h5 class="">Preguntas Frecuentes</h5>
+                        </a>
+                    </div>                       
+                </div>
+                <div id="login-rights" class="col-lg-12 col-md-12 col-sm-12 col-xs-12">  
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 no-padding" style="padding-top: 5px;">
+                        <span><a href="http://www.aktekcr.com/" target="_blank"> © AKTEK S.A.</a> Todos los Derechos Reservados</span>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 no-padding text-right" style="color: #fff;">
+                            <span><a href="https://avatar.utn.ac.cr/avatar_utn/generales/PoliticaPrivacidad.pdf" title="T&eacute;rminos de Privacidad" target="_blank">Privacidad</a></span>&nbsp;|&nbsp;<span><a href="https://avatar.utn.ac.cr/avatar_utn/generales/TerminosUso.pdf" title="T&eacute;rminos de Uso" target="_blank">Uso</a></span>&nbsp;|&nbsp;<span><a href="http://soporte.avatarcr.com/otrs/customer.pl" title="Soporte T&eacute;cnico" target="_blank">Soporte</a></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Cambio de Contrasena modalActivarCuenta -->
+    <div class="modal fade" id="modalCambioPass" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center mheader-login">
+                    <button type="button" style="color: #fff;" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <img  src="https://avatar.utn.ac.cr/avatar_utn/images/avatarsys.png" alt="AVATAR.SYS"/>
+                </div>
+                <div class="modal-body">
+                    <h4 class="modal-title text-center">Solicitud de Cambio de Contraseña</h4>
+                    <div class="row">                            
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margen-arriba">  
+                            <form>
+                                <div class="form-group">
+                                    <h5 class="form-inline control-label">Tipo de Identificaci�n </h5>
+                                    <select id='TIPO_ID' class="control-inline form-control" name='TIPO_ID'>
+                                        <option value='Id'>Id Empleado o Persona</option>
+                                        <option value='Cedula' selected>Número de Identificación</option>
+                                        <option value='Carnet' >N�mero de Carnet</option>
+                                    </select>
+                                </div>
+                                <div class="form-group margen-arriba">
+                                    <h6 class="control-inline text-uppercase"><strong>N�mero de Identificaci�n </strong></h6>
+                                    <a class="info cursor" tabindex="0" style="display: inline;" role="button"  data-toggle="popover" data-trigger="focus" title='Informaci&oacute;n Importante' data-content="Digite el n�mero de identificaci�n: <br/><ul><li>C�dula f�sica o jur�dica solo con n�meros, ejemplo: 909990999 o 310112090333</li><li>Pasaporte o Residencia permite registrar letras y n�meros, ejemplo: DE-3444 � RS303564</li></ul>"> 
+                                        <span class="glyphicon glyphicon-info-sign" style="font-size: 15px;"></span>
+                                    </a>
+                                    <input type='text' id='IDENTIFICACION' name='IDENTIFICACION' class="form-control"/>
+                                </div>
+                                <div class="form-group margen-arriba text-right">
+                                    <label class="btn btn-primary" id="btnSolicitar" onclick="SolicitarCorreo();">Enviar</label>
+                                </div>
+                                <div class="form-group margen-arriba">
+                                    <label class="login-error" id="mensaje2"></label>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margen-arriba">
+                            <h5 class="control-label">Importante</h5>
+                            <ul>
+                                <li>Después de digitar los datos solicitados proceda a dar clic en el botón de "Enviar", el cual le enviará un correo electrónico a su cuenta personal que fue registrada en el sistema cuando se hizo la solicitud de ingreso a la institución. El correo que recibirá tiene un vinculo o  acceso seguro que le abrirá una página en el navegador predeterminado, que le permitirá registrar la clave personal.</li>
+                                <li>Usted debe activar primero su usuario para poder ingresar al sistema, si su usuario no se encuentra activo, no podrá ingresar al AVATAR.</li>
+                                <li>La clave de ingreso (PIN), no será suministrada por el sistema en ningún momento.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal"> <span class="glyphicon glyphicon-remove-circle"></span>&nbsp;Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Activar Cuenta  -->
+    <div class="modal fade" id="modalActivarCuenta" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center mheader-login">
+                    <button type="button" style="color: #fff;" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <img  src="https://avatar.utn.ac.cr/avatar_utn/images/avatarsys.png" alt="AVATAR.SYS"/>
+                </div>
+                <div class="modal-body">
+                    <h4 class="modal-title text-center">Activaci&oacute;n de Cuenta</h4>
+                    <div class="row">                            
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margen-arriba">  
+                            <form>
+                                <div class="form-group">
+                                    <h5 class="form-inline control-label">Tipo de Identificaci�n </h5>
+                                    <select id='TIPO_DOCUMENTO' class="form-control" name='TIPO_DOCUMENTO'>
+                                        <option value='Cedula' selected>C�dula</option>
+                                        <option value='Carnet' selected>N�mero de Carnet</option>
+                                    </select>
+                                </div>
+                                <div class="form-group margen-arriba">
+                                    <h6 class="control-inline text-uppercase"><strong>N�mero de Identificaci�n </strong></h6>
+                                    <a class="info cursor" tabindex="0" style="display: inline;" role="button"  data-toggle="popover" data-trigger="focus" title='Informaci&oacute;n Importante' data-content="Digite el n�mero de identificaci�n: <br/><ul><li>C�dula f�sica o jur�dica solo con n�meros, ejemplo: 909990999 o 310112090333</li><li>Pasaporte o Residencia permite registrar letras y n�meros, ejemplo: DE-3444 � RS303564</li></ul>"> 
+                                        <span class="glyphicon glyphicon-info-sign" style="font-size: 15px;"></span>
+                                    </a>
+                                    <input type='text' id='DOCUMENTO' name='DOCUMENTO' class="form-control"/>
+                                </div>
+                                <div class="form-group margen-arriba text-right">
+                                    <label class="btn btn-primary" id="btnActivar" onclick="Enviar();">Enviar</label>
+                                </div>
+                                <div class="form-group margen-arriba">
+                                    <label class="login-error" id="mensaje"></label>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margen-arriba">
+                            <h5 class="control-label">Importante</h5>
+                            <ul>
+                                <li>Después de digitar los datos solicitados proceda a dar clic en el botón de "Enviar", el cual le enviará un correo electrónico a su cuenta personal que fue registrada en el sistema cuando se hizo la solicitud de ingreso a la institución. El correo que recibirá tiene un vinculo o  acceso seguro que le abrirá una página en el navegador predeterminado, que le permitirá registrar la clave personal.</li>
+                                <li>Este proceso solamente activar� su usuario, permiti�ndole registrar la clave deseada.</li>
+                                <li>La clave de ingreso (PIN), no ser� suministrada por el sistema en ning�n momento.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal"> <span class="glyphicon glyphicon-remove-circle"></span>&nbsp;Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
