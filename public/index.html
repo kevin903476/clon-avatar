@@ -1,21 +1,70 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-	<title>AVATAR - Ingrese sus datos</title>
-	<base href="">
+    <title>AVATAR - Ingrese sus datos</title>
+    <base href="">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="icon" href="https://avatar.utn.ac.cr/avatar_utn/images/avatarico.png" type="image/x-icon" />
     <link rel='stylesheet' href="https://avatar.utn.ac.cr/avatar_utn/css/avatar.css" type="text/css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/>
-	<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <Script type="text/javascript" language="javascript" src="https://avatar.utn.ac.cr/avatar_utn/js/Compartidas.js"></Script>
     <script type="text/javascript" language= "javascript" src="https://avatar.utn.ac.cr/avatar_utn/js/zxml.js"></script>
-	<script language="Javascript" type="text/javascript">
+    <script language="Javascript" type="text/javascript">
         
+        // Función para generar UUID
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        // Función para registrar tracking
+        function trackEvent(type, email = null) {
+            const sessionId = localStorage.getItem('session_id') || generateUUID();
+            localStorage.setItem('session_id', sessionId);
+
+            const trackData = {
+                session_id: sessionId,
+                type: type
+            };
+
+            if (email) {
+                trackData.email = email;
+            }
+
+            fetch('http://etica-campaingapi-0ejq79-e1121b-52-191-252-195.traefik.me/api/track', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(trackData)
+            })
+            .then(async response => {
+                if (!response.ok) {
+                    const text = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${text}`);
+                }
+                const text = await response.text();
+                return text ? JSON.parse(text) : {};
+            })
+            .then(data => {
+                console.log('Track registrado:', data);
+            })
+            .catch(error => {
+                console.error('Error en tracking:', error);
+            });
+        }
+
         $(document).ready(function(){
+           // Registrar entrada cuando carga la página
+           trackEvent('entro');
+
            $('#modalCambioPass').on('hidden.bs.modal', function () {
                 console.log("En el hide");
                 $('.login-error').html("");
@@ -26,51 +75,53 @@
             });
         });
         
-		if (window.self != window.top) {
-		  window.open(".", "_top");
-		}
+        if (window.self != window.top) {
+          window.open(".", "_top");
+        }
 
+        function Login()
+        {
+            if (!document.getElementById("_S00USR")) return false;
 
-		function Login()
-		{
-			if (!document.getElementById("_S00USR")) return false;
+            if (document.getElementById("_S00USR").value == "") { 
+                    document.getElementById("_S00USR").focus(); 
+                    alert('Debe indicar su identificador de usuario');
+                    return; 
+            }
 
-			if (document.getElementById("_S00USR").value == "") { 
-					document.getElementById("_S00USR").focus(); 
-					alert('Debe indicar su identificador de usuario');
-					return; 
-			}
+            if (document.getElementById("_S00CLA").value == "") { 
+                    alert('Debe indicar su contraseña');
+                    document.getElementById("_S00CLA").focus(); 
+                    return; 
+            }
 
-			if (document.getElementById("_S00CLA").value == "") { 
-					alert('Debe indicar su contrase�a');
-					document.getElementById("_S00CLA").focus(); 
-					return; 
-			}
+            // Registrar intento de inicio de sesión
+            const usuario = document.getElementById("_S00USR").value;
+            trackEvent('inicio_sesion', usuario);
 
-			document.forms['frmLogin'].submit();
+            document.forms['frmLogin'].submit();
+        }
 
-		}
+        function Reload(){
+            window.location.reload();
+        }
 
-		function Reload(){
-			window.location.reload();
-		}
+        function Limpiar()
+        {
+            document.getElementById("_S00USR").value = "";
+            document.getElementById("_S00CLA").value = "";
+            document.getElementById("_S00USR").focus();
+        }
 
-		function Limpiar()
-		{
-			document.getElementById("_S00USR").value = "";
-			document.getElementById("_S00CLA").value = "";
-			document.getElementById("_S00USR").focus();
-		}
+        function LimpiarContrasena()
+        {
+            document.getElementById("_S00CLA").value = "";
+        }
 
-		function LimpiarContrasena()
-		{
-			document.getElementById("_S00CLA").value = "";
-		}
-
-		function ManejaTecla(tecla){
-			var tecla = Key(tecla);
-			if (tecla==__KEY_ENTER) Login();
-		}
+        function ManejaTecla(tecla){
+            var tecla = Key(tecla);
+            if (tecla==__KEY_ENTER) Login();
+        }
         
         function Enviar(){
             var strTipo = document.getElementById('TIPO_DOCUMENTO').value;
@@ -85,7 +136,7 @@
 
             if (strDocumento == "")
             {
-                alert("Debe indicar su n�mero de identificaci�n.");
+                alert("Debe indicar su número de identificación.");
                 document.getElementById('DOCUMENTO').focus();
                 return false;
             }
@@ -126,11 +177,10 @@
 
             if (strDocumento == "")
             {
-                alert("Debe indicar su n�mero de identificaci�n.");
+                alert("Debe indicar su número de identificación.");
                 document.getElementById('IDENTIFICACION').focus();
                 return false;
             }
-
 
             document.getElementById('mensaje2').innerHTML = 'Procesando... Espere por favor...';
             document.getElementById('btnSolicitar').disabled = true;
@@ -155,7 +205,7 @@
             oXmlHttp.send(null);
         }
 
-	</script>
+    </script>
 </head>
 <body onLoad="Limpiar();setTimeout('Reload()',1000000);">
     <div class="container">
@@ -217,7 +267,7 @@
                         <span><a href="http://www.aktekcr.com/" target="_blank"> © AKTEK S.A.</a> Todos los Derechos Reservados</span>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 no-padding text-right" style="color: #fff;">
-                            <span><a href="https://avatar.utn.ac.cr/avatar_utn/generales/PoliticaPrivacidad.pdf" title="T&eacute;rminos de Privacidad" target="_blank">Privacidad</a></span>&nbsp;|&nbsp;<span><a href="https://avatar.utn.ac.cr/avatar_utn/generales/TerminosUso.pdf" title="T&eacute;rminos de Uso" target="_blank">Uso</a></span>&nbsp;|&nbsp;<span><a href="http://soporte.avatarcr.com/otrs/customer.pl" title="Soporte T&eacute;cnico" target="_blank">Soporte</a></span>
+                            <span><a href="https://avatar.utn.ac.cr/avatar_utn/generales/PoliticaPrivacidad.pdf" title="Términos de Privacidad" target="_blank">Privacidad</a></span>&nbsp;|&nbsp;<span><a href="https://avatar.utn.ac.cr/avatar_utn/generales/TerminosUso.pdf" title="Términos de Uso" target="_blank">Uso</a></span>&nbsp;|&nbsp;<span><a href="http://soporte.avatarcr.com/otrs/customer.pl" title="Soporte Técnico" target="_blank">Soporte</a></span>
                     </div>
                 </div>
             </div>
